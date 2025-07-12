@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const SkillSwapPlatform = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ const SkillSwapPlatform = () => {
   };
 
   const handleSaveProfile = async () => {
-    if (!currentUser || !currentUser._id) {
+    if (!currentUser || !currentUser.id) {
       alert('User not found. Please log in again.');
       return;
     }
@@ -96,7 +98,7 @@ const SkillSwapPlatform = () => {
     setIsUpdating(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/users/update-profile/${currentUser._id}`, {
+      const response = await fetch(`http://localhost:5000/api/users/update-profile/${currentUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -133,9 +135,10 @@ const SkillSwapPlatform = () => {
         availability: currentUser.availability || 'weekends',
         skillsOffered: currentUser.skillsOffered || [],
         skillsWanted: currentUser.skillsWanted || [],
-        photo: currentUser.photo || null
+        photo: currentUser.photo.data || null
       });
     }
+    
     setShowProfile(false);
   };
 
@@ -233,7 +236,7 @@ const SkillSwapPlatform = () => {
                 const user = JSON.parse(localStorage.getItem('user'));
                 return user?.photo ? (
                   <img
-                    src={user.photo}
+                    src={user.photo.data}
                     alt="User"
                     style={{ width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer' }}
                     onClick={handleProfileClick}
@@ -285,7 +288,7 @@ const SkillSwapPlatform = () => {
                 const user = JSON.parse(localStorage.getItem('user'));
                 return user?.photo ? (
                   <img
-                    src={user.photo}
+                    src={user.photo.data}
                     alt="User"
                     style={{ width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer' }}
                     onClick={handleProfileClick}
@@ -352,7 +355,7 @@ const SkillSwapPlatform = () => {
               const user = JSON.parse(localStorage.getItem('user'));
               return user?.photo ? (
                 <img
-                  src={user.photo}
+                  src={user.photo.data}
                   alt="User"
                   style={{ width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer' }}
                   onClick={handleProfileClick}
@@ -828,7 +831,9 @@ const SkillSwapPlatform = () => {
           {/* User List */}
           <div style={{ padding: '20px' }}>
             {filteredUsers.map(user => (
-              <div key={user._id} style={{
+              <div key={user._id}
+              onClick={() => navigate(`/user/${user._id}`)}
+               style={{
                 backgroundColor: '#1a1a1a',
                 border: '1px solid #333',
                 borderRadius: '10px',

@@ -62,19 +62,17 @@ const LoginPage = () => {
       // Extract user and base64 photo from response
       const { token, user } = data;
       const userWithPhoto = {
-        ...user,
-        photo: user?.photo?.data
-          ? `${user.photo.data}`
-          : null
+        ...user
       };
 
       // Store token and user with image
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(userWithPhoto));
+      
 
       // Redirect after 1 second
       setTimeout(() => {
-        window.location.href = '/dashboard';
+        window.location.href = '/userlist';
       }, 1000);
     } else {
       setError(data.message || 'Login failed');

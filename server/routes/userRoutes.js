@@ -21,16 +21,57 @@ router.get('/others', async (req, res) => {
         skillsOffered: user.skillsOffered || [],
         role: user.role,
         rating: user.rating || 0,
-        photo
+        photo,
+        location:user.location,
+        availability : user.availability
       };
     });
 
     res.status(200).json(usersWithPhotos);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch users', error: error.message });
-  }
+  } 
 });
 
+// GET /api/users/:id — return one user's full info
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find by ID, excluding password
+    const user = await User.findById(id)
+      .select('-password')  // don’t return the password hash
+      .lean();
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Convert base64 photo object into string if needed
+    let photo = '';
+    if (user.photo?.data) {
+      photo = user.photo.data; // already a data:… URI
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      photo,
+      location: user.location,
+      availability: user.availability,
+      skillsOffered: user.skillsOffered,
+      skillsWanted: user.skillsWanted,
+      profileVisibility: user.profileVisibility,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 // ✅ PUT /update-profile/:id — Update user profile
 router.put('/update-profile/:id', async (req, res) => {
@@ -42,7 +83,7 @@ router.put('/update-profile/:id', async (req, res) => {
     skillsOffered,
     skillsWanted,
     photo
-  } = req.body;
+  } = req.body; 
 
   try {
     const updateData = {
